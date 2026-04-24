@@ -163,18 +163,18 @@ Galinette Web permet à une équipe d'administrateurs Active Directory de lister
 
 ### Fonctionnalités
 
-- 🔐 **Connexion Active Directory** avec contrôle par groupe (LDAPS avec fallback LDAP)
-- 📋 **Liste temps réel multi-serveurs** avec merge intelligent (pas de flash au rafraîchissement)
-- 🔍 **Recherche instantanée, filtres, tri par colonnes** (état, utilisateur, serveur, ouverture, inactif)
-- 👁️ **4 modes Shadow** (visualisation/contrôle, avec/sans consentement) — auto-élévation UAC
-- 💬 **Envoi de message** à tout utilisateur
-- 🔓 **Déverrouillage compte AD** depuis l'interface
-- 📜 **Historique de connexion** (30 derniers jours)
-- 🖥️ **Dashboard de ferme** (CPU, RAM, uptime, stats sessions par serveur)
-- 📊 **Journal d'audit intégré** (SQLite, rétention 30 jours, recherche live)
-- ➕ **Liste de serveurs dynamique** (ajout/retrait sans redémarrage)
-- 📤 **Export CSV**
-- 📋 **Copier les infos de session** dans le presse-papier
+-  **Connexion Active Directory** avec contrôle par groupe (LDAPS avec fallback LDAP)
+-  **Liste temps réel multi-serveurs** avec merge intelligent (pas de flash au rafraîchissement)
+-  **Recherche instantanée, filtres, tri par colonnes** (état, utilisateur, serveur, ouverture, inactif)
+-  **4 modes Shadow** (visualisation/contrôle, avec/sans consentement) — auto-élévation UAC
+-  **Envoi de message** à tout utilisateur
+-  **Déverrouillage compte AD** depuis l'interface
+-  **Historique de connexion** (30 derniers jours)
+-  **Dashboard de ferme** (CPU, RAM, uptime, stats sessions par serveur)
+-  **Journal d'audit intégré** (SQLite, rétention 30 jours, recherche live)
+-  **Liste de serveurs dynamique** (ajout/retrait sans redémarrage)
+-  **Export CSV**
+-  **Copier les infos de session** dans le presse-papier
 
 ### Pourquoi ?
 
