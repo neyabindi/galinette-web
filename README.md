@@ -131,6 +131,8 @@ The `.bat` requests UAC elevation so that `/noConsentPrompt` works reliably (Win
 ### Screenshots
 
 ![Login](docs/screenshots/login.png)
+
+
 *Active Directory login with group-based authorization*
 
 ![Dashboard](docs/screenshots/dashboard.png)
