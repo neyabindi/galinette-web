@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🐦 Galinette Web
+#  Galinette Web
 
 **Modern web-based RDS administration console**
 *Console moderne d'administration RDS en web*
@@ -18,7 +18,7 @@
 
 ## English
 
-A modern, lightweight, web-based replacement for the legendary **Galinette cendrée** (a .NET Windows app by Mehdy Bouchiba) that every French sysadmin managing Remote Desktop Services has used at some point.
+A modern, lightweight, web-based replacement for the legendary **Galinette cendrée** (a .NET Windows app by Mehdy Bouchiba) that every sysadmin managing Remote Desktop Services has used at some point.
 
 Galinette Web lets a team of Active Directory administrators list, monitor and manage user sessions across a farm of Windows RDS hosts — without installing any agent, without any GPO, and without any service account.
 
@@ -146,7 +146,7 @@ Issues and PRs welcome! See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### Credits
 
-- Inspired by **Galinette cendrée** by [Mehdy Bouchiba](https://sourceforge.net/projects/galinettecendree/) — the OG RDS admin tool for French sysadmins. Huge respect 🙏
+- Inspired by **Galinette cendrée** by [Mehdy Bouchiba](https://sourceforge.net/projects/galinettecendree/) — the OG RDS admin tool for sysadmin. Huge respect 
 - Built with [FastAPI](https://fastapi.tiangolo.com/), [React](https://react.dev/), [Tailwind CSS](https://tailwindcss.com/), [pypsrp](https://github.com/jborean93/pypsrp), [ldap3](https://github.com/cannatag/ldap3).
 
 ### License
@@ -157,7 +157,7 @@ Issues and PRs welcome! See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Français
 
-Un remplacement moderne, léger et web de la légendaire **Galinette cendrée** (app .NET Windows de Mehdy Bouchiba) que tout sysadmin français gérant des Services Bureau à distance a utilisée au moins une fois.
+Un remplacement moderne, léger et web de la légendaire **Galinette cendrée** (app .NET Windows de Mehdy Bouchiba) que tout sysadmin gérant des Services Bureau à distance a utilisée au moins une fois.
 
 Galinette Web permet à une équipe d'administrateurs Active Directory de lister, surveiller et gérer les sessions utilisateurs sur une ferme de serveurs RDS — sans installer d'agent, sans GPO, sans compte de service.
 
@@ -273,7 +273,7 @@ Issues et PRs bienvenues ! Voir [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### Crédits
 
-- Inspiré par **Galinette cendrée** de [Mehdy Bouchiba](https://sourceforge.net/projects/galinettecendree/) — l'outil RDS de référence pour les sysadmins français. Respect 🙏
+- Inspiré par **Galinette cendrée** de [Mehdy Bouchiba](https://sourceforge.net/projects/galinettecendree/) — l'outil RDS de référence pour les sysadmins. Respect 
 - Construit avec [FastAPI](https://fastapi.tiangolo.com/), [React](https://react.dev/), [Tailwind CSS](https://tailwindcss.com/), [pypsrp](https://github.com/jborean93/pypsrp), [ldap3](https://github.com/cannatag/ldap3).
 
 ### Licence
