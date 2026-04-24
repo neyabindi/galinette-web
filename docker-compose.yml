@@ -1,0 +1,42 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    image: galinette-backend:1.0
+    container_name: galinette-backend
+    restart: unless-stopped
+    environment:
+      # Your Active Directory settings
+      GALINETTE_AD_DOMAIN: ${AD_DOMAIN:-example.local}
+      GALINETTE_AD_NETBIOS: ${AD_NETBIOS:-EXAMPLE}
+      GALINETTE_AD_DC: ${AD_DC:-}                       # empty = DNS autodiscovery
+      GALINETTE_AD_ADMIN_GROUP: ${AD_ADMIN_GROUP:-Galinette-Admins}
+      # Session & security
+      GALINETTE_SESSION_TTL_SECONDS: "28800"             # 8 hours
+      GALINETTE_COOKIE_SECURE: ${COOKIE_SECURE:-true}    # true behind HTTPS
+      GALINETTE_CORS_ORIGINS: ${CORS_ORIGINS:-'["https://galinette.example.local"]'}
+      GALINETTE_DATA_DIR: /data
+    volumes:
+      - galinette_data:/data
+    networks:
+      - galinette
+
+  frontend:
+    build:
+      context: ./frontend
+    image: galinette-frontend:1.0
+    container_name: galinette-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-8082}:80"
+    networks:
+      - galinette
+
+volumes:
+  galinette_data:
+
+networks:
+  galinette:
+    driver: bridge

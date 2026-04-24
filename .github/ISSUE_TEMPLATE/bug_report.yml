@@ -1,0 +1,60 @@
+name: 🐛 Bug report
+description: Report something broken or unexpected
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please fill in as much as you can.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Clear description of the problem
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Log in as ...
+        2. Click on ...
+        3. See error ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: input
+    id: galinette-version
+    attributes:
+      label: Galinette Web version
+      placeholder: "1.0.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: rds-os
+    attributes:
+      label: RDS host OS
+      options:
+        - Windows Server 2016
+        - Windows Server 2019
+        - Windows Server 2022
+        - Windows Server 2025
+        - Mixed
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Backend logs
+      description: "Output of `docker logs galinette-backend --tail 50` (redact sensitive info)"
+      render: shell
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context

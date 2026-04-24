@@ -1,0 +1,1 @@
+"""Galinette Web — package principal."""

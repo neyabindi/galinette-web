@@ -1,0 +1,39 @@
+# Runtime data (never commit!)
+data/
+*.db
+*.db-journal
+*.sqlite
+servers.json
+
+# Environment
+.env
+.env.local
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Node
+node_modules/
+dist/
+.vite/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Docker
+.dockerignore
+
+# Tests / coverage
+.coverage
+htmlcov/
+.pytest_cache/

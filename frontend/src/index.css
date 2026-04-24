@@ -1,0 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Fraunces:wght@600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root {
+  height: 100%;
+  background: #18181b;
+}
+body {
+  font-family: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  color: #e4e4e7;
+}
+.font-mono, input, code, pre, kbd, .font-mono * {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace !important;
+}
+.font-display {
+  font-family: 'Fraunces', Georgia, serif;
+  font-feature-settings: 'ss01';
+}
