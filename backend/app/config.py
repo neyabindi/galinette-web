@@ -32,8 +32,15 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
+# Fallback vers /tmp si le data_dir configuré n'est pas accessible en écriture
+# (cas des environnements de CI/tests où /data n'existe pas).
 _DATA_DIR = Path(settings.data_dir)
-_DATA_DIR.mkdir(parents=True, exist_ok=True)
+try:
+    _DATA_DIR.mkdir(parents=True, exist_ok=True)
+except (PermissionError, OSError):
+    import tempfile
+    _DATA_DIR = Path(tempfile.gettempdir()) / "galinette"
+    _DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 _SERVERS_FILE = _DATA_DIR / "servers.json"
 _LOCK = threading.Lock()
