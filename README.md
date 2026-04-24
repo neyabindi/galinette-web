@@ -130,7 +130,20 @@ The `.bat` requests UAC elevation so that `/noConsentPrompt` works reliably (Win
 
 ### Screenshots
 
-> Add your screenshots here once the repo is public
+![Login](docs/screenshots/login.png)
+*Active Directory login with group-based authorization*
+
+![Dashboard](docs/screenshots/dashboard.png)
+*Farm health: per-server CPU/RAM/uptime and session stats*
+
+![Sessions](docs/screenshots/sessions.png)
+*Multi-server sessions with sortable columns, filters, and live search*
+
+![Shadow menu](docs/screenshots/shadow-menu.png)
+*Four shadow modes — same as the original Galinette cendrée*
+
+![Audit](docs/screenshots/audit.png)
+*Built-in audit log with 30-day retention and live search*
 
 ### Roadmap
 
