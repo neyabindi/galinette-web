@@ -32,4 +32,4 @@ Known limitations:
 - Event 4624 parsing for connection history may need tuning on some OS versions
 - No built-in HTTPS — put a reverse proxy in front (Nginx, Caddy, NPM…)
 
-Credits: Inspired by Galinette cendrée by Mehdy Bouchiba.
+Credits: Inspired by Galinette cendrée by Mehdy Bouchiba. Developed by Ney Abindi (neyabindi).
