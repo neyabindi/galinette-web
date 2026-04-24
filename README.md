@@ -161,7 +161,7 @@ Issues and PRs welcome! See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### Credits
 
-- Inspired by **Galinette cendrée** by [Mehdy Bouchiba](https://sourceforge.net/projects/galinettecendree/) — the OG RDS admin tool for sysadmin. Huge respect 
+- Inspired by **Galinette cendrée** by [Mehdy Bouchiba](https://sourceforge.net/projects/galinettecendree/) — the OG RDS admin tool for sysadmin.
 - Built with [FastAPI](https://fastapi.tiangolo.com/), [React](https://react.dev/), [Tailwind CSS](https://tailwindcss.com/), [pypsrp](https://github.com/jborean93/pypsrp), [ldap3](https://github.com/cannatag/ldap3).
 
 ### License
@@ -288,7 +288,7 @@ Issues et PRs bienvenues ! Voir [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### Crédits
 
-- Inspiré par **Galinette cendrée** de [Mehdy Bouchiba](https://sourceforge.net/projects/galinettecendree/) — l'outil RDS de référence pour les sysadmins. Respect 
+- Inspiré par **Galinette cendrée** de [Mehdy Bouchiba](https://sourceforge.net/projects/galinettecendree/) — l'outil RDS de référence pour les sysadmins. 
 - Construit avec [FastAPI](https://fastapi.tiangolo.com/), [React](https://react.dev/), [Tailwind CSS](https://tailwindcss.com/), [pypsrp](https://github.com/jborean93/pypsrp), [ldap3](https://github.com/cannatag/ldap3).
 
 ### Licence
