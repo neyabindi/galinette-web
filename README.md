@@ -24,18 +24,18 @@ Galinette Web lets a team of Active Directory administrators list, monitor and m
 
 ### Features
 
-- 🔐 **Active Directory login** with group-based authorization (LDAPS with LDAP fallback)
-- 📋 **Real-time multi-server session listing** with smart merge (no UI flicker on refresh)
-- 🔍 **Instant search, filters and column sorting** (state, user, server, logon, idle)
-- 👁️ **4 Shadow modes** (view/control, with/without consent) — auto-UAC elevation
-- 💬 **Send message** to any user
-- 🔓 **Unlock AD accounts** from the UI
-- 📜 **Connection history** (last 30 days)
-- 🖥️ **Farm dashboard** (CPU, RAM, uptime, per-server session stats)
-- 📊 **Built-in audit log** (SQLite, 30-day retention, live search)
-- ➕ **Dynamic server list** (add/remove without restart)
-- 📤 **CSV export**
-- 📋 **Copy session info** to clipboard
+-  **Active Directory login** with group-based authorization (LDAPS with LDAP fallback)
+-  **Real-time multi-server session listing** with smart merge (no UI flicker on refresh)
+-  **Instant search, filters and column sorting** (state, user, server, logon, idle)
+-  **4 Shadow modes** (view/control, with/without consent) — auto-UAC elevation
+-  **Send message** to any user
+-  **Unlock AD accounts** from the UI
+-  **Connection history** (last 30 days)
+-  **Farm dashboard** (CPU, RAM, uptime, per-server session stats)
+-  **Built-in audit log** (SQLite, 30-day retention, live search)
+-  **Dynamic server list** (add/remove without restart)
+-  **CSV export**
+-  **Copy session info** to clipboard
 
 ### Why?
 
