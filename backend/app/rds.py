@@ -318,6 +318,20 @@ if ($quserLines) {
     $sessions = 0
 }
 
+# Disque système (C:) — utilise Win32_LogicalDisk DriveType=3 (fixe)
+$sysDrive = Get-CimInstance Win32_LogicalDisk -Filter "DeviceID = 'C:'"
+if ($sysDrive -and $sysDrive.Size -gt 0) {
+    $diskTotalGB = [math]::Round($sysDrive.Size / 1GB, 1)
+    $diskFreeGB  = [math]::Round($sysDrive.FreeSpace / 1GB, 1)
+    $diskUsedGB  = [math]::Round($diskTotalGB - $diskFreeGB, 1)
+    $diskPct     = [int][math]::Round(($diskUsedGB / $diskTotalGB) * 100, 0)
+} else {
+    $diskTotalGB = 0
+    $diskFreeGB  = 0
+    $diskUsedGB  = 0
+    $diskPct     = 0
+}
+
 [pscustomobject]@{
     name         = $env:COMPUTERNAME
     os           = ($os.Caption -replace 'Microsoft Windows ','')
@@ -325,6 +339,10 @@ if ($quserLines) {
     ram_pct      = $ramPct
     ram_used_gb  = $ramUsedGB
     ram_total_gb = $ramTotGB
+    disk_pct     = $diskPct
+    disk_used_gb  = $diskUsedGB
+    disk_free_gb  = $diskFreeGB
+    disk_total_gb = $diskTotalGB
     uptime       = $uptime
     sessions     = $sessions
     reachable    = $true
