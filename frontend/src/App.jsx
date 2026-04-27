@@ -80,7 +80,7 @@ function Login({ onLogin }) {
               autoFocus
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="your-admin-account"
+              placeholder="adm-monprenom"
               className="w-full bg-zinc-900 border border-zinc-800 focus:border-amber-400/60 focus:outline-none px-3 py-2 text-sm text-zinc-100 font-mono"
               disabled={loading}
             />
@@ -111,7 +111,7 @@ function Login({ onLogin }) {
             {loading ? 'Authentification…' : 'Se connecter'}
           </button>
           <div className="text-[10px] text-zinc-600 text-center font-mono">
-            authentification Active Directory
+            authentification Active Directory · groupe.avlo
           </div>
         </form>
       </div>
@@ -356,15 +356,30 @@ function Dashboard({ health, sessions, refreshing, onRefresh }) {
             <RefreshCw className={`w-3 h-3 ${refreshing ? 'animate-spin' : ''}`} /> Rafraîchir
           </button>
         </div>
+        {/* Header columns */}
+        <div className="grid grid-cols-12 gap-3 px-3 py-2 text-[10px] uppercase tracking-[0.15em] text-zinc-500 font-medium border-b border-zinc-800/60 bg-zinc-900/30">
+          <div className="col-span-2">Serveur</div>
+          <div className="col-span-1">Système</div>
+          <div className="col-span-1">État</div>
+          <div className="col-span-2">Sessions</div>
+          <div className="col-span-2">CPU</div>
+          <div className="col-span-2">RAM</div>
+          <div className="col-span-1">Disque C:</div>
+          <div className="col-span-1 text-right">Uptime</div>
+        </div>
         <div className="divide-y divide-zinc-800/80">
           {health.map((s) => {
             const srvSessions = sessions.filter((x) => x.server?.toUpperCase() === s.name?.toUpperCase());
             const nbActive = srvSessions.filter((x) => x.state === 'active').length;
             const nbIdle   = srvSessions.filter((x) => x.state === 'idle').length;
             const nbDisc   = srvSessions.filter((x) => x.state === 'disconnected').length;
+            const ramTip = s.ram_total_gb ? `${s.ram_used_gb} / ${s.ram_total_gb} Go utilisés` : '';
+            const diskTip = s.disk_total_gb
+              ? `${s.disk_used_gb} / ${s.disk_total_gb} Go utilisés (${s.disk_free_gb} Go libres)`
+              : '';
             return (
               <div key={s.name} className="grid grid-cols-12 gap-3 py-2.5 px-3 items-center hover:bg-zinc-900/50">
-                <div className="col-span-3 flex items-center gap-2">
+                <div className="col-span-2 flex items-center gap-2">
                   <Server className="w-3.5 h-3.5 text-zinc-500" />
                   <span className="font-mono text-sm">{s.name}</span>
                 </div>
@@ -384,8 +399,11 @@ function Dashboard({ health, sessions, refreshing, onRefresh }) {
                 <div className="col-span-2">
                   <Bar value={s.cpu_pct || 0} />
                 </div>
-                <div className="col-span-2">
+                <div className="col-span-2" title={ramTip}>
                   <Bar value={s.ram_pct || 0} />
+                </div>
+                <div className="col-span-1" title={diskTip}>
+                  <Bar value={s.disk_pct || 0} warn={80} crit={90} />
                 </div>
                 <div className="col-span-1 text-xs text-zinc-500 font-mono text-right">{s.uptime || '-'}</div>
               </div>
@@ -1022,7 +1040,7 @@ function Servers({ push, servers, onChanged }) {
             value={newServer}
             onChange={(e) => setNewServer(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && add()}
-            placeholder="Nom du serveur (ex: RDS-SESSION-01)"
+            placeholder="Nom du serveur (ex: SRVORLNSRDS058)"
             className="flex-1 bg-zinc-900 border border-zinc-800 focus:border-amber-400/60 focus:outline-none px-3 py-1.5 text-sm font-mono"
           />
           <button onClick={add} disabled={!newServer.trim()} className="flex items-center gap-1.5 px-4 py-1.5 bg-amber-400 text-zinc-950 text-sm font-medium disabled:opacity-40 hover:bg-amber-300">
