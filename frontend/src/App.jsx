@@ -80,7 +80,7 @@ function Login({ onLogin }) {
               autoFocus
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="your-admin-account"
+              placeholder="adm-monprenom"
               className="w-full bg-zinc-900 border border-zinc-800 focus:border-amber-400/60 focus:outline-none px-3 py-2 text-sm text-zinc-100 font-mono"
               disabled={loading}
             />
@@ -171,8 +171,8 @@ function Shell({ user, onLogout }) {
     try {
       // Toutes les requêtes en parallèle
       const [sess, h, srvs, aud] = await Promise.allSettled([
-        api.listSessions(),
-        api.serverHealth(),
+        api.listSessions(manual),
+        api.serverHealth(manual),
         api.listServers(),
         api.audit(500),
       ]);
@@ -356,15 +356,30 @@ function Dashboard({ health, sessions, refreshing, onRefresh }) {
             <RefreshCw className={`w-3 h-3 ${refreshing ? 'animate-spin' : ''}`} /> Rafraîchir
           </button>
         </div>
+        {/* Header columns */}
+        <div className="grid grid-cols-12 gap-3 px-3 py-2 text-[10px] uppercase tracking-[0.15em] text-zinc-500 font-medium border-b border-zinc-800/60 bg-zinc-900/30">
+          <div className="col-span-2">Serveur</div>
+          <div className="col-span-1">Système</div>
+          <div className="col-span-1">État</div>
+          <div className="col-span-2">Sessions</div>
+          <div className="col-span-2">CPU</div>
+          <div className="col-span-2">RAM</div>
+          <div className="col-span-1">Disque C:</div>
+          <div className="col-span-1 text-right">Uptime</div>
+        </div>
         <div className="divide-y divide-zinc-800/80">
           {health.map((s) => {
             const srvSessions = sessions.filter((x) => x.server?.toUpperCase() === s.name?.toUpperCase());
             const nbActive = srvSessions.filter((x) => x.state === 'active').length;
             const nbIdle   = srvSessions.filter((x) => x.state === 'idle').length;
             const nbDisc   = srvSessions.filter((x) => x.state === 'disconnected').length;
+            const ramTip = s.ram_total_gb ? `${s.ram_used_gb} / ${s.ram_total_gb} Go utilisés` : '';
+            const diskTip = s.disk_total_gb
+              ? `${s.disk_used_gb} / ${s.disk_total_gb} Go utilisés (${s.disk_free_gb} Go libres)`
+              : '';
             return (
               <div key={s.name} className="grid grid-cols-12 gap-3 py-2.5 px-3 items-center hover:bg-zinc-900/50">
-                <div className="col-span-3 flex items-center gap-2">
+                <div className="col-span-2 flex items-center gap-2">
                   <Server className="w-3.5 h-3.5 text-zinc-500" />
                   <span className="font-mono text-sm">{s.name}</span>
                 </div>
@@ -384,8 +399,11 @@ function Dashboard({ health, sessions, refreshing, onRefresh }) {
                 <div className="col-span-2">
                   <Bar value={s.cpu_pct || 0} />
                 </div>
-                <div className="col-span-2">
+                <div className="col-span-2" title={ramTip}>
                   <Bar value={s.ram_pct || 0} />
+                </div>
+                <div className="col-span-1" title={diskTip}>
+                  <Bar value={s.disk_pct || 0} warn={80} crit={90} />
                 </div>
                 <div className="col-span-1 text-xs text-zinc-500 font-mono text-right">{s.uptime || '-'}</div>
               </div>
@@ -467,6 +485,7 @@ function Sessions({ push, sessions, errors, loading, refreshing, onRefresh, onAc
         case 'state':       av = stateOrder[a.state] ?? 9; bv = stateOrder[b.state] ?? 9; break;
         case 'id':          av = a.session_id; bv = b.session_id; break;
         case 'user':        av = (a.user || '').toLowerCase(); bv = (b.user || '').toLowerCase(); break;
+        case 'sid':         av = (a.user_sid || ''); bv = (b.user_sid || ''); break;
         case 'server':      av = (a.server || '').toLowerCase(); bv = (b.server || '').toLowerCase(); break;
         case 'session':     av = (a.session_name || '').toLowerCase(); bv = (b.session_name || '').toLowerCase(); break;
         case 'logon':       av = a.logon_time || ''; bv = b.logon_time || ''; break;
@@ -513,6 +532,7 @@ function Sessions({ push, sessions, errors, loading, refreshing, onRefresh, onAc
       else if (action === 'copy') {
         const info = [
           `Utilisateur : ${s.user}`,
+          `SID         : ${s.user_sid || '-'}`,
           `Serveur     : ${s.server}`,
           `ID session  : ${s.session_id}`,
           `État        : ${s.state}`,
@@ -556,7 +576,7 @@ function Sessions({ push, sessions, errors, loading, refreshing, onRefresh, onAc
   }
 
   function exportCsv() {
-    const headers = ['server', 'session_id', 'user', 'state', 'idle_time', 'logon_time'];
+    const headers = ['server', 'session_id', 'user', 'user_sid', 'state', 'idle_time', 'logon_time'];
     const rows = filtered.map((s) => headers.map((h) => s[h] ?? '').join(';'));
     const blob = new Blob([headers.join(';') + '\n' + rows.join('\n')], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
@@ -566,6 +586,21 @@ function Sessions({ push, sessions, errors, loading, refreshing, onRefresh, onAc
     a.click();
     URL.revokeObjectURL(url);
   }
+
+  // Auto-refresh quand la recherche ne trouve rien (debounce 1.5s, 1 seul essai par terme)
+  const lastAutoRefreshQuery = useRef('');
+  useEffect(() => {
+    if (!query || query.length < 2) return;
+    if (filtered.length > 0) return;
+    if (refreshing) return;
+    if (lastAutoRefreshQuery.current === query) return;
+    const t = setTimeout(() => {
+      lastAutoRefreshQuery.current = query;
+      push(`Recherche de « ${query} » en cours…`);
+      onRefresh();
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [query, filtered.length, refreshing, onRefresh, push]);
 
   return (
     <div className="space-y-3">
@@ -645,6 +680,7 @@ function Sessions({ push, sessions, errors, loading, refreshing, onRefresh, onAc
               <SortTh label="État"        k="state"   sortKey={sortKey} sortDir={sortDir} onClick={toggleSort} />
               <SortTh label="ID"          k="id"      sortKey={sortKey} sortDir={sortDir} onClick={toggleSort} />
               <SortTh label="Utilisateur" k="user"    sortKey={sortKey} sortDir={sortDir} onClick={toggleSort} />
+              <SortTh label="SID"         k="sid"     sortKey={sortKey} sortDir={sortDir} onClick={toggleSort} />
               <SortTh label="Serveur"     k="server"  sortKey={sortKey} sortDir={sortDir} onClick={toggleSort} />
               <SortTh label="Session"     k="session" sortKey={sortKey} sortDir={sortDir} onClick={toggleSort} />
               <SortTh label="Ouverture"   k="logon"   sortKey={sortKey} sortDir={sortDir} onClick={toggleSort} />
@@ -678,6 +714,31 @@ function Sessions({ push, sessions, errors, loading, refreshing, onRefresh, onAc
                   </td>
                   <td className="p-2 text-zinc-500 font-mono text-xs tabular-nums">{s.session_id}</td>
                   <td className="p-2 font-mono text-zinc-100">{s.user}</td>
+                  <td
+                    className="p-2 font-mono text-[10px] text-zinc-500 cursor-pointer hover:text-amber-300"
+                    title={s.user_sid ? `Cliquer pour copier le SID : ${s.user_sid}` : 'SID non disponible'}
+                    onClick={async () => {
+                      if (!s.user_sid) return;
+                      let copied = false;
+                      if (navigator.clipboard && window.isSecureContext) {
+                        try { await navigator.clipboard.writeText(s.user_sid); copied = true; } catch {}
+                      }
+                      if (!copied) {
+                        try {
+                          const ta = document.createElement('textarea');
+                          ta.value = s.user_sid;
+                          ta.style.position = 'fixed'; ta.style.left = '-9999px';
+                          document.body.appendChild(ta);
+                          ta.select();
+                          copied = document.execCommand('copy');
+                          document.body.removeChild(ta);
+                        } catch {}
+                      }
+                      push(copied ? `SID de ${s.user} copié` : 'Copie impossible', copied ? 'ok' : 'err');
+                    }}
+                  >
+                    {s.user_sid ? (s.user_sid.length > 20 ? s.user_sid.slice(0, 8) + '…' + s.user_sid.slice(-8) : s.user_sid) : '-'}
+                  </td>
                   <td className="p-2 font-mono text-xs text-zinc-300">{s.server}</td>
                   <td className="p-2 text-xs text-zinc-400">{s.session_name || '-'}</td>
                   <td className="p-2 text-xs text-zinc-400 tabular-nums">{s.logon_time}</td>
@@ -694,7 +755,7 @@ function Sessions({ push, sessions, errors, loading, refreshing, onRefresh, onAc
             })}
             {!filtered.length && !loading && (
               <tr>
-                <td colSpan={9} className="p-8 text-center text-zinc-500 text-sm">
+                <td colSpan={10} className="p-8 text-center text-zinc-500 text-sm">
                   Aucune session à afficher.
                 </td>
               </tr>
@@ -959,6 +1020,7 @@ function HistoryModal({ user, onClose, push }) {
                 <tr>
                   <th className="p-2 text-left">Horodatage</th>
                   <th className="p-2 text-left">Serveur</th>
+                  <th className="p-2 text-left">Type</th>
                   <th className="p-2 text-left">IP client</th>
                   <th className="p-2 text-left">Événement</th>
                 </tr>
@@ -968,6 +1030,7 @@ function HistoryModal({ user, onClose, push }) {
                   <tr key={i} className="hover:bg-zinc-900/60">
                     <td className="p-2 text-zinc-300 tabular-nums">{r.when}</td>
                     <td className="p-2 text-zinc-200">{r.server}</td>
+                    <td className="p-2 text-amber-300">{r.logon_type || '-'}</td>
                     <td className="p-2 text-zinc-400">{r.ip || '-'}</td>
                     <td className="p-2"><span className="text-emerald-300">{r.event}</span></td>
                   </tr>
@@ -1117,7 +1180,7 @@ function Audit({ events }) {
           </tbody>
         </table>
         <div className="px-3 py-2 border-t border-zinc-800 text-[11px] text-zinc-500 font-mono">
-          Rétention : 30 jours · purge automatique
+          Rétention : 90 jours · purge automatique
         </div>
       </div>
     </div>

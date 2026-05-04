@@ -15,6 +15,12 @@ from pypsrp.wsman import WSMan
 
 log = logging.getLogger("galinette.rds")
 
+# Deux sémaphores séparés pour prioriser les actions admin vs les scans en arrière-plan
+# - Actions admin (déconnexion, logoff, message) : 5 slots, prioritaires
+# - Scans en arrière-plan (BG refresh) : 2 slots seulement, n'engorge pas
+WINRM_SEMAPHORE = asyncio.Semaphore(5)       # actions admin (par défaut)
+WINRM_BG_SEMAPHORE = asyncio.Semaphore(2)    # scans BG (limité)
+
 
 def _run_ps(server: str, script: str, creds: tuple[str, str]) -> list[dict]:
     """
@@ -30,8 +36,8 @@ def _run_ps(server: str, script: str, creds: tuple[str, str]) -> list[dict]:
             ssl=False,            # WinRM HTTP chiffré par Kerberos/NTLM
             auth="negotiate",     # Kerberos + fallback NTLM
             cert_validation=False,
-            connection_timeout=10,
-            operation_timeout=30,
+            connection_timeout=5,
+            operation_timeout=10,
         ) as wsman:
             with RunspacePool(wsman) as pool:
                 ps = PowerShell(pool)
@@ -39,14 +45,20 @@ def _run_ps(server: str, script: str, creds: tuple[str, str]) -> list[dict]:
                 output = ps.invoke()
                 if ps.had_errors:
                     errors = [str(e) for e in ps.streams.error]
+                    log.warning("PS errors on %s: %s", server, "; ".join(errors)[:500])
                     raise RuntimeError(f"Erreur PowerShell : {'; '.join(errors)}")
                 if not output:
+                    log.warning("PS empty output on %s", server)
                     return []
                 # Le résultat de ConvertTo-Json est rendu sous forme de string
                 raw = "\n".join(str(o) for o in output).strip()
-                if not raw:
+                if not raw or raw == "[]":
                     return []
-                data = json.loads(raw)
+                try:
+                    data = json.loads(raw)
+                except json.JSONDecodeError as e:
+                    log.warning("PS bad JSON on %s: %s | raw=%r", server, e, raw[:300])
+                    return []
                 # Normaliser : toujours une liste
                 return data if isinstance(data, list) else [data]
     except WSManFaultError as e:
@@ -54,7 +66,9 @@ def _run_ps(server: str, script: str, creds: tuple[str, str]) -> list[dict]:
 
 
 async def _run_async(server: str, script: str, creds: tuple[str, str]) -> list[dict]:
-    return await asyncio.to_thread(_run_ps, server, script, creds)
+    """Toutes les connexions WinRM passent par ici → limite globale via sémaphore."""
+    async with WINRM_SEMAPHORE:
+        return await asyncio.to_thread(_run_ps, server, script, creds)
 
 
 # ---------------- Lecture des sessions ----------------
@@ -78,6 +92,7 @@ if ($lines.Count -lt 2) { '[]' ; return }
 #   - 1er token purement numérique = ID session
 #   - Token entre user et ID (s'il y en a un non-numérique) = session_name (rdp-tcp#NN)
 #   - Après l'ID : state, idle, logon
+
 $sessions = @()
 foreach ($line in $lines[1..($lines.Count-1)]) {
     try {
@@ -236,34 +251,61 @@ async def get_connection_history(
 ) -> list[dict[str, Any]]:
     """
     Parcourt les journaux Security de chaque RDS pour les events 4624 (logon) du user.
-    Limité aux 30 derniers jours et 50 events max par serveur.
+    Filtre côté PowerShell, parallèle limité par sémaphore admin.
     """
     safe = sam.replace("'", "''")
     script = f"""
     $ErrorActionPreference = 'SilentlyContinue'
     $start = (Get-Date).AddDays(-{days})
-    $events = Get-WinEvent -FilterHashtable @{{
-        LogName = 'Security'
-        Id = 4624
-        StartTime = $start
-    }} -MaxEvents 500 | Where-Object {{ $_.Properties[5].Value -eq '{safe}' }} |
-    Select-Object -First 50 | ForEach-Object {{
-        [pscustomobject]@{{
-            when   = $_.TimeCreated.ToString('yyyy-MM-dd HH:mm:ss')
-            server = $env:COMPUTERNAME
-            ip     = $_.Properties[18].Value
-            event  = 'logon'
-        }}
-    }}
-    $events | ConvertTo-Json -Compress -Depth 3
+    $needle = '{safe}'.ToLower()
+    $events = @()
+    try {{
+        $events = Get-WinEvent -FilterHashtable @{{
+            LogName='Security'; Id=4624; StartTime=$start
+        }} -MaxEvents 1000 -ErrorAction Stop |
+            Where-Object {{
+                $_.Properties.Count -gt 18 -and
+                $_.Properties[5].Value -and
+                $_.Properties[5].Value.ToString().ToLower() -eq $needle -and
+                $_.Properties[8].Value -in 2, 3, 7, 10, 11
+            }} |
+            Select-Object -First 30 |
+            ForEach-Object {{
+                $logonType = switch ([int]$_.Properties[8].Value) {{
+                    2  {{ 'console' }}
+                    3  {{ 'network' }}
+                    7  {{ 'unlock' }}
+                    10 {{ 'rdp' }}
+                    11 {{ 'cached' }}
+                    default {{ "type-$($_.Properties[8].Value)" }}
+                }}
+                [pscustomobject]@{{
+                    when       = $_.TimeCreated.ToString('yyyy-MM-dd HH:mm:ss')
+                    server     = $env:COMPUTERNAME
+                    ip         = $_.Properties[18].Value
+                    event      = 'logon'
+                    logon_type = $logonType
+                }}
+            }}
+    }} catch {{}}
+    if (-not $events) {{ '[]' }} else {{ $events | ConvertTo-Json -Compress -Depth 3 }}
     """
+
+    async def fetch_server(srv: str) -> list[dict]:
+        async with WINRM_SEMAPHORE:
+            try:
+                return await asyncio.wait_for(
+                    asyncio.to_thread(_run_ps, srv, script, creds),
+                    timeout=20.0,
+                )
+            except (asyncio.TimeoutError, Exception) as e:
+                log.warning("history %s: %s", srv, e)
+                return []
+
+    results = await asyncio.gather(*[fetch_server(s) for s in servers])
     all_events: list[dict] = []
-    tasks = [_run_async(srv, script, creds) for srv in servers]
-    results = await asyncio.gather(*tasks, return_exceptions=True)
-    for result in results:
-        if isinstance(result, Exception):
-            continue
-        all_events.extend(result)
+    for events in results:
+        all_events.extend(events)
     all_events.sort(key=lambda e: e.get("when", ""), reverse=True)
     return all_events[:100]
 
@@ -318,6 +360,20 @@ if ($quserLines) {
     $sessions = 0
 }
 
+# Disque système (C:) — utilise Win32_LogicalDisk DriveType=3 (fixe)
+$sysDrive = Get-CimInstance Win32_LogicalDisk -Filter "DeviceID = 'C:'"
+if ($sysDrive -and $sysDrive.Size -gt 0) {
+    $diskTotalGB = [math]::Round($sysDrive.Size / 1GB, 1)
+    $diskFreeGB  = [math]::Round($sysDrive.FreeSpace / 1GB, 1)
+    $diskUsedGB  = [math]::Round($diskTotalGB - $diskFreeGB, 1)
+    $diskPct     = [int][math]::Round(($diskUsedGB / $diskTotalGB) * 100, 0)
+} else {
+    $diskTotalGB = 0
+    $diskFreeGB  = 0
+    $diskUsedGB  = 0
+    $diskPct     = 0
+}
+
 [pscustomobject]@{
     name         = $env:COMPUTERNAME
     os           = ($os.Caption -replace 'Microsoft Windows ','')
@@ -325,6 +381,10 @@ if ($quserLines) {
     ram_pct      = $ramPct
     ram_used_gb  = $ramUsedGB
     ram_total_gb = $ramTotGB
+    disk_pct     = $diskPct
+    disk_used_gb  = $diskUsedGB
+    disk_free_gb  = $diskFreeGB
+    disk_total_gb = $diskTotalGB
     uptime       = $uptime
     sessions     = $sessions
     reachable    = $true
@@ -333,14 +393,25 @@ if ($quserLines) {
 
 
 async def list_server_health(
-    servers: list[str], creds: tuple[str, str]
+    servers: list[str], creds: tuple[str, str], semaphore=None
 ) -> list[dict[str, Any]]:
-    """Stats CPU/RAM/uptime pour chaque serveur (en parallèle)."""
+    """Stats CPU/RAM/disque/uptime pour chaque serveur.
+    semaphore=None utilise WINRM_SEMAPHORE (admin), passer WINRM_BG_SEMAPHORE pour la BG."""
+    sem = semaphore if semaphore is not None else WINRM_SEMAPHORE
+
     async def one(srv: str) -> dict:
-        try:
-            result = await _run_async(srv, PS_HEALTH, creds)
-            return result[0] if result else {"name": srv, "reachable": False}
-        except Exception as e:
-            return {"name": srv, "reachable": False, "error": str(e)}
+        async with sem:
+            try:
+                result = await asyncio.wait_for(
+                    asyncio.to_thread(_run_ps, srv, PS_HEALTH, creds),
+                    timeout=60.0,
+                )
+                return result[0] if result else {"name": srv, "reachable": False}
+            except asyncio.TimeoutError:
+                log.warning("health %s: TIMEOUT 60s", srv)
+                return {"name": srv, "reachable": False, "error": "timeout"}
+            except Exception as e:
+                log.warning("health %s: %s", srv, e)
+                return {"name": srv, "reachable": False, "error": str(e)}
 
     return await asyncio.gather(*[one(s) for s in servers])

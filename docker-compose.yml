@@ -6,15 +6,18 @@ services:
     container_name: galinette-backend
     restart: unless-stopped
     environment:
-      # Your Active Directory settings
-      GALINETTE_AD_DOMAIN: ${AD_DOMAIN:-example.local}
-      GALINETTE_AD_NETBIOS: ${AD_NETBIOS:-EXAMPLE}
-      GALINETTE_AD_DC: ${AD_DC:-}                       # empty = DNS autodiscovery
-      GALINETTE_AD_ADMIN_GROUP: ${AD_ADMIN_GROUP:-Galinette-Admins}
-      # Session & security
-      GALINETTE_SESSION_TTL_SECONDS: "28800"             # 8 hours
-      GALINETTE_COOKIE_SECURE: ${COOKIE_SECURE:-true}    # true behind HTTPS
-      GALINETTE_CORS_ORIGINS: ${CORS_ORIGINS:-'["https://galinette.example.local"]'}
+      GALINETTE_AD_DOMAIN: example.local
+      GALINETTE_AD_NETBIOS: EXAMPLE
+      GALINETTE_AD_DC: ""              # vide = auto-discovery DNS
+      GALINETTE_AD_ADMIN_GROUP: Galinette-Admins
+      GALINETTE_SESSION_TTL_SECONDS: "28800"
+      # Audit
+      GALINETTE_AUDIT_RETENTION_DAYS: "90"
+      # Base de données : vide = SQLite local. Pour MariaDB :
+      # mysql+pymysql://user:password@hostname:3306/galinette
+      GALINETTE_DATABASE_URL: ""
+      GALINETTE_COOKIE_SECURE: "true"
+      GALINETTE_CORS_ORIGINS: '["https://galinette.example.local"]'
       GALINETTE_DATA_DIR: /data
     volumes:
       - galinette_data:/data
@@ -30,7 +33,7 @@ services:
     depends_on:
       - backend
     ports:
-      - "${FRONTEND_PORT:-8082}:80"
+      - "8082:80"   # exposition locale pour NPM ; adapte le port si 8082 est pris
     networks:
       - galinette
 

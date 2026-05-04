@@ -45,10 +45,10 @@ export const api = {
     }),
   removeServer: (name) =>
     request(`/api/servers/${encodeURIComponent(name)}`, { method: 'DELETE' }),
-  serverHealth: () => request('/api/servers/health'),
+  serverHealth: (refresh = false) => request(`/api/servers/health${refresh ? '?refresh=true' : ''}`),
 
   // Sessions
-  listSessions: () => request('/api/sessions'),
+  listSessions: (refresh = false) => request(`/api/sessions${refresh ? '?refresh=true' : ''}`),
   disconnect: (server, sid) =>
     request(`/api/sessions/${server}/${sid}/disconnect`, { method: 'POST' }),
   logoff: (server, sid) =>

@@ -252,3 +252,21 @@ def get_current_credentials(user: SessionUser) -> tuple[str, str]:
 
     # Format attendu par pypsrp en auth NTLM
     return f"{settings.ad_netbios}\\{sess.username}", password
+
+
+def get_any_active_credentials() -> tuple[str, str] | None:
+    """
+    Retourne les credentials d'un admin connecté (n'importe lequel)
+    pour les tâches de fond. None si personne n'est connecté.
+    Choisit la session la plus récemment vue.
+    """
+    with _LOCK:
+        if not _SESSIONS:
+            return None
+        # Tri par last_seen DESC, prend le plus récent
+        sess = max(_SESSIONS.values(), key=lambda s: s.last_seen)
+        try:
+            password = _FERNET.decrypt(sess.enc_password).decode("utf-8")
+            return f"{settings.ad_netbios}\\{sess.username}", password
+        except Exception:
+            return None
