@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🐦 Galinette Web
+# Galinette Web V2.0
 
 **Modern web-based RDS administration console**
 *Console moderne d'administration RDS en web*
@@ -25,22 +25,22 @@ Galinette Web lets a team of Active Directory administrators list, monitor and m
 
 ### Features
 
-- 🔐 **Active Directory login** with LDAPS + group-based authorization
-- ⚡ **Background refresh** — instant page loads, server load mutualized between admins
-- 📋 **Real-time multi-server session listing** with smart merge (no UI flicker)
-- 🔍 **Auto-search** — type a username, if not found a fresh scan is triggered automatically
-- ↕️ **Sort & filter** every column (state, user, SID, server, logon, idle)
-- 👁️ **4 Shadow modes** (view/control, with/without consent) — auto-UAC elevation
-- 🆔 **AD SID column** — one-click copy (perfect for FSLogix VHDX troubleshooting)
-- 💬 **Send message** to any user
-- 🔓 **Unlock AD account** from the UI
-- 📜 **Connection history** with logon types (RDP, console, unlock, cached)
-- 🖥️ **Farm dashboard** — CPU, RAM, **disk C:** with thresholds, uptime, sessions split per server
-- 🚨 **Offline servers alert** on the dashboard
-- 📊 **Built-in audit log** — SQLite or **MariaDB**, configurable retention (default 90 days), live search
-- ➕ **Dynamic server list** — add/remove from the UI, auto-deduplication
-- 📤 **CSV export** with SID
-- 📋 **Copy session info** to clipboard
+-  **Active Directory login** with LDAPS + group-based authorization
+-  **Background refresh** — instant page loads, server load mutualized between admins
+-  **Real-time multi-server session listing** with smart merge (no UI flicker)
+-  **Auto-search** — type a username, if not found a fresh scan is triggered automatically
+-  **Sort & filter** every column (state, user, SID, server, logon, idle)
+-  **4 Shadow modes** (view/control, with/without consent) — auto-UAC elevation
+-  **AD SID column** — one-click copy (perfect for FSLogix VHDX troubleshooting)
+-  **Send message** to any user
+-  **Unlock AD account** from the UI
+-  **Connection history** with logon types (RDP, console, unlock, cached)
+-  **Farm dashboard** — CPU, RAM, **disk C:** with thresholds, uptime, sessions split per server
+-  **Offline servers alert** on the dashboard
+-  **Built-in audit log** — SQLite or **MariaDB**, configurable retention (default 90 days), live search
+-  **Dynamic server list** — add/remove from the UI, auto-deduplication
+-  **CSV export** with SID
+-  **Copy session info** to clipboard
 
 ### Why?
 
@@ -130,11 +130,38 @@ Same mechanism as the original Galinette cendrée. No GPO needed.
 
 ### Security
 
+<<<<<<< HEAD
 - Credentials **encrypted in RAM** (Fernet) — never written to disk
 - Session cookie is opaque `HttpOnly` token, not the password
 - Cleared on logout / after 8h inactivity / on container restart
 - Audit log records every action (who, when, what, target)
 - LDAP queries use the connected admin's credentials (no service account)
+=======
+- Credentials are **encrypted in RAM** (Fernet) during your session — never written to disk
+- Session cookie is opaque `HttpOnly` token, not your password
+- Cleared on logout / after 8h of inactivity / on container restart
+- Audit log records all actions (who, when, what, target) with 30-day retention
+- Passwords appear nowhere in logs or the database
+
+### Screenshots
+
+![Login](docs/screenshots/login.png)
+
+
+*Active Directory login with group-based authorization*
+
+![Dashboard](docs/screenshots/dashboard.png)
+*Farm health: per-server CPU/RAM/uptime and session stats*
+
+![Sessions](docs/screenshots/sessions.png)
+*Multi-server sessions with sortable columns, filters, and live search*
+
+![Shadow menu](docs/screenshots/shadow-menu.png)
+*Four shadow modes — same as the original Galinette cendrée*
+
+![Audit](docs/screenshots/audit.png)
+*Built-in audit log with 30-day retention and live search*
+>>>>>>> 01697c181cf2266bd11d2ce98514360272e8d315
 
 ### Roadmap
 
@@ -144,8 +171,13 @@ Same mechanism as the original Galinette cendrée. No GPO needed.
 
 ### Credits
 
+<<<<<<< HEAD
 - Inspired by **Galinette cendrée** by [Mehdy Bouchiba](https://sourceforge.net/projects/galinettecendree/) — the OG RDS admin tool for French sysadmins. Huge respect 🙏
 - Built with [FastAPI](https://fastapi.tiangolo.com/), [React](https://react.dev/), [Tailwind CSS](https://tailwindcss.com/), [pypsrp](https://github.com/jborean93/pypsrp), [ldap3](https://github.com/cannatag/ldap3), [SQLAlchemy](https://www.sqlalchemy.org/).
+=======
+- Inspired by **Galinette cendrée** by [Mehdy Bouchiba](https://sourceforge.net/projects/galinettecendree/) — the OG RDS admin tool for sysadmin.
+- Built with [FastAPI](https://fastapi.tiangolo.com/), [React](https://react.dev/), [Tailwind CSS](https://tailwindcss.com/), [pypsrp](https://github.com/jborean93/pypsrp), [ldap3](https://github.com/cannatag/ldap3).
+>>>>>>> 01697c181cf2266bd11d2ce98514360272e8d315
 
 ### License
 
@@ -161,22 +193,22 @@ Galinette Web permet à une équipe d'administrateurs Active Directory de lister
 
 ### Fonctionnalités
 
-- 🔐 **Connexion Active Directory** LDAPS avec contrôle par groupe
-- ⚡ **Refresh en arrière-plan** — chargement instantané, charge mutualisée entre admins
-- 📋 **Liste temps réel multi-serveurs** avec merge intelligent (pas de flash)
-- 🔍 **Recherche-actualisation** — tape un nom, si introuvable un scan frais est lancé automatiquement
-- ↕️ **Tri et filtres** sur toutes les colonnes (état, user, SID, serveur, ouverture, inactif)
-- 👁️ **4 modes Shadow** (visualisation/contrôle, avec/sans consentement) — auto-élévation UAC
-- 🆔 **Colonne SID** AD — clic pour copier (parfait pour debugger FSLogix)
-- 💬 **Envoi de message** à tout utilisateur
-- 🔓 **Déverrouillage compte AD** depuis l'interface
-- 📜 **Historique de connexion** avec types (RDP, console, déverrouillage, cached)
-- 🖥️ **Dashboard de ferme** — CPU, RAM, **disque C:** avec seuils, uptime, sessions par serveur
-- 🚨 **Alerte serveurs hors-ligne** sur le dashboard
-- 📊 **Journal d'audit intégré** — SQLite ou **MariaDB**, rétention configurable (90j par défaut), recherche live
-- ➕ **Liste de serveurs dynamique** — ajout/retrait depuis l'UI, dédoublonnage auto
-- 📤 **Export CSV** avec SID
-- 📋 **Copier les infos de session** dans le presse-papier
+-  **Connexion Active Directory** LDAPS avec contrôle par groupe
+-  **Refresh en arrière-plan** — chargement instantané, charge mutualisée entre admins
+-  **Liste temps réel multi-serveurs** avec merge intelligent (pas de flash)
+-  **Recherche-actualisation** — tape un nom, si introuvable un scan frais est lancé automatiquement
+-  **Tri et filtres** sur toutes les colonnes (état, user, SID, serveur, ouverture, inactif)
+-  **4 modes Shadow** (visualisation/contrôle, avec/sans consentement) — auto-élévation UAC
+-  **Colonne SID** AD — clic pour copier (parfait pour debugger FSLogix)
+-  **Envoi de message** à tout utilisateur
+-  **Déverrouillage compte AD** depuis l'interface
+-  **Historique de connexion** avec types (RDP, console, déverrouillage, cached)
+-  **Dashboard de ferme** — CPU, RAM, **disque C:** avec seuils, uptime, sessions par serveur
+-  **Alerte serveurs hors-ligne** sur le dashboard
+-  **Journal d'audit intégré** — SQLite ou **MariaDB**, rétention configurable (90j par défaut), recherche live
+-  **Liste de serveurs dynamique** — ajout/retrait depuis l'UI, dédoublonnage auto
+-  **Export CSV** avec SID
+-  **Copier les infos de session** dans le presse-papier
 
 ### Pourquoi ?
 
@@ -226,8 +258,10 @@ docker compose up -d --build
 
 ### Crédits
 
-- Inspiré par **Galinette cendrée** de [Mehdy Bouchiba](https://sourceforge.net/projects/galinettecendree/) 🙏
-- Construit avec FastAPI, React, Tailwind, pypsrp, ldap3, SQLAlchemy.
+### Crédits
+
+- Inspiré par **Galinette cendrée** de [Mehdy Bouchiba](https://sourceforge.net/projects/galinettecendree/)
+- Construit avec [FastAPI](https://fastapi.tiangolo.com/), [React](https://react.dev/), [Tailwind CSS](https://tailwindcss.com/), [pypsrp](https://github.com/jborean93/pypsrp), [ldap3](https://github.com/cannatag/ldap3).
 
 ### Licence
 

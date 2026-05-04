@@ -111,7 +111,7 @@ function Login({ onLogin }) {
             {loading ? 'Authentification…' : 'Se connecter'}
           </button>
           <div className="text-[10px] text-zinc-600 text-center font-mono">
-            authentification Active Directory
+            authentification Active Directory · groupe.avlo
           </div>
         </form>
       </div>
@@ -1085,7 +1085,7 @@ function Servers({ push, servers, onChanged }) {
             value={newServer}
             onChange={(e) => setNewServer(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && add()}
-            placeholder="Nom du serveur (ex: RDS-SESSION-01)"
+            placeholder="Nom du serveur (ex: SRVORLNSRDS058)"
             className="flex-1 bg-zinc-900 border border-zinc-800 focus:border-amber-400/60 focus:outline-none px-3 py-1.5 text-sm font-mono"
           />
           <button onClick={add} disabled={!newServer.trim()} className="flex items-center gap-1.5 px-4 py-1.5 bg-amber-400 text-zinc-950 text-sm font-medium disabled:opacity-40 hover:bg-amber-300">
