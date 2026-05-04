@@ -172,7 +172,7 @@ Same mechanism as the original Galinette cendrée. No GPO needed.
 ### Credits
 
 <<<<<<< HEAD
-- Inspired by **Galinette cendrée** by [Mehdy Bouchiba](https://sourceforge.net/projects/galinettecendree/) — the OG RDS admin tool for French sysadmins. Huge respect 🙏
+- Inspired by **Galinette cendrée** by [Mehdy Bouchiba](https://sourceforge.net/projects/galinettecendree/) — the OG RDS admin tool for French sysadmins.
 - Built with [FastAPI](https://fastapi.tiangolo.com/), [React](https://react.dev/), [Tailwind CSS](https://tailwindcss.com/), [pypsrp](https://github.com/jborean93/pypsrp), [ldap3](https://github.com/cannatag/ldap3), [SQLAlchemy](https://www.sqlalchemy.org/).
 =======
 - Inspired by **Galinette cendrée** by [Mehdy Bouchiba](https://sourceforge.net/projects/galinettecendree/) — the OG RDS admin tool for sysadmin.
